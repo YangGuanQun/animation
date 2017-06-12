@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anime.dao.AniDao">
+  <sql id="AniCols">
+  	id,createTime,episodeNum,info,name,period,state,url,flag 
+  </sql>
+
+  <select id="selectAniById" resultType="com.anime.bean.Ani">
+    select 
+    <include refid="AniCols"></include>
+    from t_ani where id = #{id}
+    and flag != -1;
+  </select>
+  
+  <insert id="insertAni" parameterType="com.anime.bean.Ani">
+  	insert into t_ani (
+	<include refid="AniCols"></include>
+	) values(#{id},#{createTime},#{episodeNum},#{info},#{name},#{period},#{state},#{url},#{flag});
+  </insert>
+  
+  <update id="deleteAni" parameterType="int">
+  	update t_ani set flag=-1 where id in 
+  	<foreach collection="array" item="item" open="(" close=")" separator=",">
+  		#{item}
+  	</foreach>
+  </update>
+  
+  <update id="updateAni" parameterType="com.anime.bean.Ani">
+  	update t_ani 
+	<set>
+		<if test="createTime != null">
+		  	createTime = #{createTime},
+	  	</if>
+	  	<if test="episodeNum != null">
+		  	episodeNum = #{episodeNum},
+	  	</if>
+	  	<if test="info != null">
+		  	info = #{info},
+	  	</if>
+	  	<if test="name != null">
+		  	name = #{name},
+	  	</if>
+	  	<if test="period != null">
+		  	period = #{period},
+	  	</if>
+	  	<if test="state != null">
+		  	state = #{state},
+	  	</if>
+	  	<if test="url != null">
+		  	url = #{url},
+	  	</if>
+	  	<if test="flag != null">
+		  	flag = #{flag}
+	  	</if>
+  	</set>
+  	where id=#{id}
+  </update>
+  
+  <select id="selectNextId" resultType="int">
+  	select max(id)+1 from t_ani;
+  </select>
+  
+  <select id="selectAniByPage" parameterType="com.anime.msg.req.AniPageReq" resultType="com.anime.bean.Ani">
+  	select <include refid="AniCols"></include>
+  	from t_ani
+  	<where>
+  		<if test="ani != null">
+	  		<if test="ani.name != null">
+	  			name like concat("%",#{ani.name},"%")
+	  		</if>
+	  		<if test="ani.state != null">
+	  			state = #{state}
+	  		</if>
+	  		<if test="ani.period != null">
+	  			period = #{period}
+	  		</if>
+  		</if>
+  		<if test="startTime != null">
+  			createTime &gt; #{startTime}
+  		</if>
+  		<if test="endTime != null">
+  			createTime &lt; #{endTime}
+  		</if>
+  	</where>
+  	<if test="orderBy != null">
+		order by #{orderBy}
+	</if>
+	<if test="orderMethod != null">
+		#{orderMethod}
+	</if>
+	and flag != -1
+	limit #{startIndex},#{pageSize}
+  </select>
+  
+  <select id="selectTotalCount" resultType="int">
+  	select count(id) from t_ani where flag != -1;
+  </select>
+</mapper>

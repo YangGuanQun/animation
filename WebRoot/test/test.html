@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+<script type="text/javascript" src="../js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript">
+var send = function (){
+	$.ajax({
+	  type: "post",
+	  url: "/anime/ani/queryAniById",
+	  data: "id=7",
+	  success: function(data){
+	  	$("#msg").html(data);
+	  },
+	  error: function(data){
+	  	$("#msg").html(data).css("color","red");
+	  }
+	});
+}
+</script>
+<body>
+<p id="msg"></p>
+<button onclick="send()">post</button>
+</body>
+</html>
